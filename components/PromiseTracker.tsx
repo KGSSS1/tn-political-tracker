@@ -7,10 +7,11 @@ import { AlertCircle, Search } from 'lucide-react';
 
 type PromiseItem = { id: number; title: string; category: string; status: string; source: string; last_updated: string };
 
-export default function PromiseTracker() {
+// 1. Added the prop definition right here to fix the TypeScript error
+export default function PromiseTracker({ onPromiseClick }: { onPromiseClick?: (category: string) => void }) {
   const [statusFilter, setStatusFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
-  const [searchQuery, setSearchQuery] = useState(''); // New state for search
+  const [searchQuery, setSearchQuery] = useState(''); 
   
   const { data: promises, error, isLoading } = useSWR<PromiseItem[]>('/api/promises', fetcher);
 
@@ -127,7 +128,12 @@ export default function PromiseTracker() {
             </div>
           ) : (
             filtered.map(p => (
-              <div key={p.id} className="p-4 rounded-xl border border-slate-100 dark:border-slate-800/60 hover:shadow-md transition-all dark:bg-slate-800/20 group">
+              <div 
+                key={p.id} 
+                // 2. Added onClick and hover styling to make it clickable
+                className="p-4 rounded-xl border border-slate-100 dark:border-slate-800/60 transition-all dark:bg-slate-800/20 group cursor-pointer hover:shadow-md hover:ring-2 hover:ring-blue-500 hover:border-transparent"
+                onClick={() => onPromiseClick && onPromiseClick(p.category)}
+              >
                 <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                   <div>
                     <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">{p.category}</span>
@@ -138,7 +144,8 @@ export default function PromiseTracker() {
                   </span>
                 </div>
                 <div className="mt-4 flex justify-between items-center text-xs text-slate-500 dark:text-slate-400">
-                  <a href={p.source} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors underline underline-offset-2">View Source ↗</a>
+                  {/* 3. Added e.stopPropagation() so clicking the link doesn't trigger the news search */}
+                  <a href={p.source} target="_blank" rel="noreferrer" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors underline underline-offset-2" onClick={(e) => e.stopPropagation()}>View Source ↗</a>
                   <span>Updated: {new Date(p.last_updated).toLocaleDateString()}</span>
                 </div>
               </div>
