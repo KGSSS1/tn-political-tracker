@@ -1,0 +1,25 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Promise {
+  id           Int      @id @default(autoincrement())
+  title        String
+  category     String
+  status       String
+  source       String
+  last_updated DateTime @updatedAt
+}
+
+model News {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  source_link String   @unique
+  date        DateTime @default(now())
+}
